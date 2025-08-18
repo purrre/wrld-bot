@@ -12,7 +12,7 @@ Coming soon.
 # Building
 If you want to host wrld yourself:  
 1. Download the repo as a `.zip` and extract it.  
-2. Create a file named `creds.env` and paste the following:  
+2. Create a file named `.env` and paste the following:  
 ```
 BOT_TOKEN=
 DEV_TOKEN=
