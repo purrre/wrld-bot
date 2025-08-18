@@ -3,6 +3,8 @@ A simple Python bot that pulls Juice WRLD info using [juicewrldapi.com](https://
 
 I can’t promise this bot will always stay updated. I mainly made it for fun as an open-source alternative to [moonlight]() by yash, [hh wrld]() by hunter, and other Juice WRLD bots. I don’t really expect it to blow up, so for now it’ll stay completely free to use.  
 
+Made in [Pycord](https://pycord.dev/)
+
 ## Invite
 If you just want to use the public bot, you can [invite it here](). Otherwise, keep reading to learn how to build it yourself.  
 
@@ -10,18 +12,28 @@ If you just want to use the public bot, you can [invite it here](). Otherwise, k
 Coming soon.  
 
 # Building
-If you want to host wrld yourself:  
-1. Download the repo as a `.zip` and extract it.  
-2. Create a file named `.env` and paste the following:  
+If you want to host wrld yourself: 
+1. WRLD is written in [pycord](https://pycord.dev/), a discord.py fork. Please ensure its installed (instructions below)
+
+2. Download the repo as a `.zip` and extract it.  
+3. Create a file named `.env` and paste the following:  
 ```
 BOT_TOKEN=
 DEV_TOKEN=
 ```
-3. Paste your bot’s token into `BOT_TOKEN`. Leave `DEV_TOKEN` blank unless you’re going to use a separate dev bot.  
-4. Run `start.bat` and you’ll have your own instance running!  
+4. Paste your bot’s token into `BOT_TOKEN`. Leave `DEV_TOKEN` blank unless you’re going to use a separate dev bot.
+5. Run `start.bat` and you’ll have your own instance running!
+
+### Pycord Installation
+WRLD is written in [pycord](https://pycord.dev/). Here's how you can install it:
+1. Uninstall discord.py - `pip uninstall discord`
+2. Install Pycord - `pip install py-cord`
+Done!
+
+Pycord is a great fork of discord.py. If you're interested in using it, you can [get started here](https://guide.pycord.dev/introduction)
 
 ### Dev Mode
-If you want to run a separate dev bot alongside your main one:  
+If you want to run a separate dev bot alongside your main one:
 1. Make sure you’ve done the steps above.  
 2. Paste your dev bot’s token into `DEV_TOKEN`.  
 3. In `config.py`, set `DEV = True`.  
