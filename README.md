@@ -31,7 +31,7 @@ If you want to run a separate dev bot alongside your main one:
 You’re free to make your own public bot with this, but I just ask that you give me (pure) credit somewhere on the bot.  
 
 ## Site Access
-When the site first launched, an access code was given out—but months later I couldn’t find it anywhere (after some lazy searching). So I did the next best thing… some super simple reverse engineering.  
+When the site first launched, an access code was given out, but months later I couldn’t find it (after some lazy searching). So I did the next best thing… some super simple reverse engineering.  
 
 The code ended up being inside [62d43f4b.js](https://juicewrldapi.com/assets/index.62d43f4b.js).  
 **The access code is `juicetracker`.**  
