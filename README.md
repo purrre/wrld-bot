@@ -1,7 +1,7 @@
 # wrld bot
 A simple Python bot that pulls Juice WRLD info using [juicewrldapi.com](https://juicewrldapi.com). You can use it publicly, or self-host your own version to tweak however you like.  
 
-I can’t promise this bot will always stay updated. I mainly made it for fun as an open-source alternative to [moonlight]() by yash, [hh wrld]() by hunter, and other Juice WRLD bots. I don’t really expect it to blow up, so for now it’ll stay completely free to use.  
+I can’t promise this bot will always stay updated. I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice WRLD bots. I don’t really expect it to blow up, so for now it’ll stay completely free to use.  
 
 Made in [Pycord](https://pycord.dev/)
 
@@ -16,7 +16,7 @@ If you want to host wrld yourself:
 1. WRLD is written in [pycord](https://pycord.dev/), a discord.py fork. Please ensure its installed (instructions below)
 2. Download the repo as a `.zip` and extract it.  
 3. Create a file named `.env` and paste the following:  
-```
+```env
 BOT_TOKEN=
 DEV_TOKEN=
 ```
@@ -25,8 +25,14 @@ DEV_TOKEN=
 
 ### Pycord Installation
 WRLD is written in [pycord](https://pycord.dev/). Here's how you can install it:
-1. Uninstall discord.py - `pip uninstall -y discord && pip uninstall -y discord.py`
-2. Install Pycord - `pip install -y py-cord`
+1. Uninstall discord.py:
+```bash
+pip uninstall -y discord && pip uninstall -y discord.py
+```
+3. Install Pycord:
+```bash
+pip install py-cord
+```
 Done!
 
 Pycord is a great fork of discord.py. If you're interested in using it, you can [get started here](https://guide.pycord.dev/introduction)
