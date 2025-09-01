@@ -1,7 +1,7 @@
-# wrld bot
-A simple Python bot that pulls information using [juicewrldapi.com](https://juicewrldapi.com) and [gabedoesntgaf GB tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit). You can use it publicly, or self-host your own version. 
+# wrld
+A fairly simple Python bot that pulls information using [juicewrldapi.com](https://juicewrldapi.com) and [gabedoesntgaf GB tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit). You can use it publicly, or self-host your own version. 
 
-I will try to maintain this, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice WRLD bots. I wanted a bot that was solely for Juice, rather than being combined with server management. I don’t really expect it to get big, and hosting costs will be low, so this bot will remain 100% free. ✨🎉
+I will try to maintain this, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice wrld bots. I wanted a bot that was solely for Juice, rather than being combined with server management. Hosting costs will be extremely low, so this bot is completely free to use. ✨🎉
 
 Made in [Pycord](https://pycord.dev/)
 
@@ -11,16 +11,16 @@ If you just want to use the public bot, you can [invite it here](). Otherwise, k
 # Usage
 The default prefix is `,`. There is currently no way to set your own, however I can add that if this bot does well.
 
-WRLD supports both text and application (slash) commands. You can do ,help or /help to view all commands.
+wrld supports both text and application (slash) commands. You can do ,help or /help to view all commands.
 
 The bot is really simple, and therefore is pretty self explanatory to use. It's pretty hard to not understand, however if you need help with anything contact me on `Twitter/X @purezeroh` or `Discord @purree` **Do not contact me regarding self-hosting unless it's about fair use**
 
 # Building
 ### If you're not experienced in python, stop here. You don't need to self-host until you know what you're doing. I will not provide support on self-hosting
 This being said, if you want to host wrld yourself: 
-1. WRLD is written in [pycord](https://pycord.dev/), a discord.py fork. Please ensure its installed (instructions below)
-2. Clone the Repo or download as ZIP.  
-3. Create a file named `.env` and paste the following:
+1. wrld is written in [pycord](https://pycord.dev/), a discord.py fork. Please ensure its installed (instructions below)
+2. Clone the Repo or download.  
+3. Create a file named `.env` in the base directory and paste the following:
 ```env
 BOT_TOKEN=
 DEV_TOKEN=
@@ -28,11 +28,11 @@ G_API_KEY=
 ```
 4. Paste your bot’s token into `BOT_TOKEN`. Leave `DEV_TOKEN` blank unless you’re going to use a separate dev bot.
 5. Get a Google Sheets API key & paste it into `G_API_KEY`
-6. Run `start.bat` and you’ll have your own instance running!
+6. Run `start.bat` or `start.sh` and you’ll have your own instance running!
 
 ### Pycord Installation
-WRLD is written in [pycord](https://pycord.dev/). Here's how you can install it:
-1. Uninstall discord.py
+wrld is written in [pycord](https://pycord.dev/). Here's how you can install it:
+1. Uninstall discord.py (Recommended unless you're going to use a virtual env)
 2. Install Pycord:
 ```bash
 pip install py-cord
@@ -51,10 +51,21 @@ If you want to run a separate dev bot alongside your main one:
 
 You’re free to make your own public bot with this, but I just ask that you give me (pure) credit somewhere on the bot.  
 
+### API Wrapper
+The creator of the API recently made an [API Wrapper](https://github.com/HackinHood/juicewrld-api-wrapper) to allow easier usage. wrld will NOT adapt to this package, however if you're interested:
+1. Install
+2. This can be done either via GitHub:
+```bash
+pip install git+https://github.com/hackinhood/juicewrld-api-wrapper.git
+```
+3. Or via pypi:
+```bash
+pip install juicewrld-api-wrapper
+```
+
 ## Site Access
 I couldn't remember the access code & didn't feel like searching or contacting the developer (shoutout to him hes cool asf) so I did the next best thing.. the simplest form of Reverse Engineering there is.
-
-The code ended up being inside [62d43f4b.js](https://juicewrldapi.com/assets/index.62d43f4b.js).  
+ 
 **The access code is `juicetracker`.**   
 
 ## Credits
