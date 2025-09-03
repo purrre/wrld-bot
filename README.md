@@ -1,7 +1,9 @@
 # wrld
 A fairly simple Python bot that pulls information using [juicewrldapi.com](https://juicewrldapi.com) and [gabedoesntgaf GB tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit). You can use it publicly, or self-host your own version. 
 
-I will try to maintain this, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice wrld bots. I wanted a bot that was solely for Juice, rather than being combined with server management. Hosting costs will be extremely low, so this bot is completely free to use. ✨🎉
+This will mostly be maintained, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice wrld bots. I wanted a bot that was solely for Juice, rather than being combined with server management. Hosting costs will be extremely low, so this bot is completely free to use. ✨🎉
+
+In addition, Ill try to keep adding features as they come available from juicewrldapi or any other helpful sources.
 
 Made in [Pycord](https://pycord.dev/)
 
