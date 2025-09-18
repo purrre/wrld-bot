@@ -65,8 +65,20 @@ pip install git+https://github.com/hackinhood/juicewrld-api-wrapper.git
 pip install juicewrld-api-wrapper
 ```
 
+### Contributing
+If you would like to contribute; fork the repo, make your changes, and open a pull request. Id like if things were kept fairly simple.
+
+If you have a larger idea, either reach out on my socials or open an issue & we can discuss.
+
+## Fair Use
+You are welcome to use this code to build your own bot, extend its functionality, or share it publicly. However, selling the code, claiming it as your own, or distributing it without proper credit is prohibited. Credit is defined as including my name (Pure) in any publicly accessible part of your project.
+
+All data accessed by this bot remains the property of its respective owners and should be used respectfully.
+
+Please contact me with any questions or negotiations at Twitter/X @purezeroh or Discord @purree.
+
 ## Site Access
-I couldn't remember the access code & didn't feel like searching or contacting the developer (shoutout to him hes cool asf) so I did the next best thing.. the simplest form of Reverse Engineering there is.
+I couldn't remember the access code & didn't feel like searching or contacting the developer (even though i did anyways, shoutout to him hes cool asf) so I did the next best thing.. the simplest form of Reverse Engineering there is.
  
 **The access code is `juicetracker`.**   
 
