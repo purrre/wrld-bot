@@ -5,6 +5,8 @@ This will mostly be maintained, though I mainly made it for fun as an open-sourc
 
 In addition, Ill try to keep adding features as they come available from juicewrldapi or any other helpful sources.
 
+You can view the to-do list [here](https://trello.com/b/kqv64MH9/wrld)
+
 Made in [Pycord](https://pycord.dev/)
 
 ## Invite
