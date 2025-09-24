@@ -1,0 +1,4 @@
+py-cord
+aiohttp
+python-dotenv
+music-tag
