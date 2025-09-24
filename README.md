@@ -10,7 +10,7 @@ You can view the to-do list [here](https://trello.com/b/kqv64MH9/wrld)
 Made in [Pycord](https://pycord.dev/)
 
 ## Invite
-If you just want to use the public bot, you can [invite it here](). Otherwise, keep reading to learn how to build it yourself. **If you're not experienced in python, do not attempt to host your own instance. I will not provide support on self-hosting**
+If you just want to use the public bot, you can [invite it here](https://discord.com/oauth2/authorize?client_id=806666114666725378&permissions=563364418145344&integration_type=0&scope=bot). Otherwise, keep reading to learn how to build it yourself. **If you're not experienced in python, do not attempt to host your own instance. I will not provide support on self-hosting**
 
 # Usage
 The default prefix is `,`. There is currently no way to set your own, however I can add that if this bot does well.
