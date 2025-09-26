@@ -30,7 +30,7 @@ BOT_TOKEN=
 DEV_TOKEN=
 G_API_KEY=
 ```
-4. Paste your bot’s token into `BOT_TOKEN`. Leave `DEV_TOKEN` blank unless you’re going to use a separate dev bot.
+4. Paste your bot’s token into `BOT_TOKEN`. Leave `DEV_TOKEN` blank unless you’re going to use a separate dev bot. If you use DEV_TOKEN, you can also set DEV_PREFIX in config.py
 5. Get a Google Sheets API key & paste it into `G_API_KEY`
 6. Run `start.bat` or `start.sh` and you’ll have your own instance running!
 
