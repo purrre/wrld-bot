@@ -1,11 +1,13 @@
-01/01/2001
+25 September, 2025
 
-1.0
+1.1
 
-[+] ..
+[+] Enable, Disable, & Changelog commands
 
-[-] ..
+[+] Dev prefix
 
-[/] ..
+[/] Changes to loading and httpcall functions
 
-[!] ..
+[/] Function and Cog name changes
+
+[!] Fixed leak command
