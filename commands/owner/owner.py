@@ -9,7 +9,7 @@ class ownercog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(usage='reload <cog>', description='Reloads a command')
+    @commands.command(usage='reload <cog>', description='Reloads a cog')
     @commands.is_owner()
     async def reload(self, ctx, cog):
         try:
@@ -25,7 +25,29 @@ class ownercog(commands.Cog):
             await ctx.reply(f'{random.choice(gifs)} reloaded')
         except Exception as e:
             print(e)
-            await ctx.reply('failed. info printed')
+            await ctx.reply(f'failed. ```{e}```')
+
+    @commands.command(usage='disable <cog>', description='Disables a cog')
+    @commands.is_owner()
+    async def disable(self, ctx, cog):
+        try:
+            self.bot.unload_extension(cog)
+            print(f'disabled {cog}')
+            await ctx.reply(f'{random.choice(gifs)} disabled `{cog}`')
+        except Exception as e:
+            print(e)
+            await ctx.reply(f'failed. ```{e}```')
+
+    @commands.command(usage='enable <cog>', description='Enables a cog')
+    @commands.is_owner()
+    async def enable(self, ctx, cog):
+        try:
+            self.bot.load_extension(cog)
+            print(f'enabled {cog}')
+            await ctx.reply(f'{random.choice(gifs)} loaded `{cog}`')
+        except Exception as e:
+            print(e)
+            await ctx.reply(f'failed. ```{e}```')
 
         
     @commands.command(aliases=['ss', 'status'], usage='setstatus <type: listening/playing/watching/streaming/custom> <text>', description='Sets the bots custom status')

@@ -17,7 +17,7 @@ key = os.environ.get('G_API_KEY')
 DiscordWebSocket.identify = setup.WRLD
 
 bot = bridge.Bot(
-    command_prefix=commands.when_mentioned_or(','),
+    command_prefix=commands.when_mentioned_or(config.DEV_PREFIX if config.DEV and config.DEV_PREFIX else ','),
     intents=discord.Intents.all(),
     help_command=None,
     case_insensitive=True,

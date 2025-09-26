@@ -4,7 +4,7 @@ from discord.ext import bridge, commands
 import random
 
 import config
-from functions.functions import colors, loading, gifs, find_commands, emojis
+from functions.functions import colors, loading, gifs, find_commands, emojis, httpcall
 
 class Dropdown(discord.ui.Select):
     def __init__(self, bot, user_id, bot_avatar_url):
@@ -113,6 +113,26 @@ class helpcog(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.set_footer(text='Made with 💖 by @purree')
         await ctx.reply(embed=embed)
+
+    @bridge.bridge_command(
+        aliases=['cl', 'changelog'],
+        usage='changes',
+        description='Most recent changes to wrld'
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def changes(self, ctx):
+        msg = await ctx.reply(embed=await loading('changelog'))
+        
+        file = await httpcall('https://raw.githubusercontent.com/purrre/wrld-bot/refs/heads/main/CHANGES.md', json=False)
+        lines = file.splitlines()
+        
+        embed = discord.Embed(title=f'v{lines[2]} Changelog')
+        changes = [line for line in lines[3:] if line.strip()]
+        embed.description = f"{lines[0]}\n\n" + "\n".join(changes)
+        embed.set_thumbnail(self.bot.user.avatar.url)
+        
+        await msg.edit(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(helpcog(bot))

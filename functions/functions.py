@@ -24,8 +24,9 @@ gifs = ['<a:gif1:1407139666511265984>',
         '<a:gif10:1411972696836804648>',
         '<a:gif11:1411972803154149457>']
 
-async def loading(method):
-    return discord.Embed(description=f'{random.choice(gifs)} Getting {method} information..', color=colors.main)
+async def loading(method, x=None):
+    """loading message, x = additional information"""
+    return discord.Embed(description=f'{random.choice(gifs)} Getting {method} information.. {x if x else ''}', color=colors.main)
 
 def apierror(status, statustext):
     embed=discord.Embed(
@@ -36,7 +37,7 @@ def apierror(status, statustext):
     embed.set_footer(text=f'Error {status}: {statustext}')
     return embed
 
-async def httpcall(url, method='GET', headers=None, data=None, params=None):
+async def httpcall(url, method='GET', headers=None, data=None, params=None, json=True):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.request(method, url, headers=headers, json=data, params=params) as resp:
@@ -45,8 +46,10 @@ async def httpcall(url, method='GET', headers=None, data=None, params=None):
                     apierror(status=status, statustext=resp.reason)
                     print(f'Request failed with status {status}: {resp.reason}')
                 else:
-                    response = await resp.json()
-                    return response
+                    if json:
+                        return await resp.json()
+                    else:
+                        return await resp.text()
     except aiohttp.ClientError as e:
         print(f'HTTP request failed: {e}')
         traceback.print_exc()

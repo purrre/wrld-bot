@@ -1,1 +1,2 @@
-DEV = False
+DEV = True
+DEV_PREFIX = ',,'
