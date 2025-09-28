@@ -1,12 +1,11 @@
 import discord
-
 import aiohttp, io, asyncio, traceback
 import urllib.parse
 
 from functions.functions import httpcall, colors, loading
+import config
 
-# i hate this file. 
-
+# fetch file urls
 async def fetch_urls(name, filename=None, ext=None, track_titles=None):
     queries = [filename] if ext == '.mp3' and filename else []
     if track_titles:
@@ -32,40 +31,61 @@ async def fetch_urls(name, filename=None, ext=None, track_titles=None):
     return []
 
 
-async def send_file(interaction: discord.Interaction, url: str, filename: str, kind: str):
+# file sender
+async def send_file(interaction: discord.Interaction, url, filename, kind, session: aiohttp.ClientSession=None):
+    given_session = session is not None
+    if not given_session:
+        session = aiohttp.ClientSession()
+
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=10) as resp:
-                if resp.status != 200:
+        async with session.get(url, timeout=30) as resp:
+            if resp.status != 200:
+                return await interaction.followup.send(
+                    embed=discord.Embed(description=f'Failed to fetch the {kind} file.', color=colors.red),
+                    ephemeral=True
+                )
+
+            data = bytearray()
+            boost_level = interaction.guild.premium_tier if interaction.guild else 0
+            max_size = config.upload_limits.get(boost_level, config.upload_limits[0])
+
+            async for chunk in resp.content.iter_chunked(1024*1024):
+                data.extend(chunk)
+                size = len(data) / 1024 / 1024
+                if size > max_size:
                     return await interaction.followup.send(
-                        embed=discord.Embed(description=f'Failed to fetch the {kind} file.', color=colors.red),
+                        embed=discord.Embed(
+                            title='File Too Large',
+                            description=f'{kind} is too large. Download or View it [here ↗]({url})',
+                            color=colors.main
+                        ),
                         ephemeral=True
                     )
-                data = await resp.read()
 
-        try:
-            await interaction.followup.send(file=discord.File(io.BytesIO(data), filename=filename), ephemeral=True)
-        except discord.HTTPException as e:
-            if e.code == 40005:  # too large, may hardcode values for faster sending & less errors
-                size_mb = len(data) / 1024 / 1024
-                await interaction.edit_original_response(
-                    embed=discord.Embed(
-                        title='File Too Large',
-                        description=f'{kind} is too large ({size_mb:.2f} MB). Download it [here]({url})',
-                        color=colors.main
-                    )
+            try:
+                await interaction.followup.send(
+                    file=discord.File(io.BytesIO(data), filename=filename),
+                    ephemeral=True
                 )
-            else:
-                raise
+            except Exception as e:
+                traceback.print_exc()
+                return await interaction.followup.send(
+                    embed=discord.Embed(description=f'⚠️ Upload Error: {e}', color=colors.red),
+                    ephemeral=True
+                )
 
     except Exception as e:
         traceback.print_exc()
-        await interaction.edit_original_response(
-            embed=discord.Embed(description=f'⚠️ Error: {e}', color=colors.red)
+        return await interaction.followup.send(
+            embed=discord.Embed(description=f'⚠️ Error: {e}', color=colors.red),
+            ephemeral=True
         )
+    finally:
+        if not given_session:
+            await session.close()
 
 
-
+# mp3
 class SongButton(discord.ui.Button):
     def __init__(self, name: str, filename: str | None = None, title: str | None = None):
         super().__init__(emoji='💿', style=discord.ButtonStyle.gray)
@@ -77,15 +97,17 @@ class SongButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if not self.stream_urls:
             self.stream_urls = await fetch_urls(self.name, self.filename, '.mp3')
+
         if not self.stream_urls:
             return await interaction.response.send_message(
                 embed=discord.Embed(description='Couldnt find an MP3 :(', color=colors.main),
-                ephemeral=True
-            )
+                ephemeral=True)
 
         await interaction.response.send_message(embed=await loading('mp3'), ephemeral=True)
         await send_file(interaction, self.stream_urls[0], f'{self.title}.mp3', 'MP3')
 
+
+# mp4
 class SnipButton(discord.ui.Button):
     def __init__(self, name, filename=None, title='Snippets', track_titles=None):
         super().__init__(emoji='👀', style=discord.ButtonStyle.gray)
@@ -98,17 +120,18 @@ class SnipButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if not self.stream_urls:
             self.stream_urls = await fetch_urls(self.name, self.filename, '.mp4', self.track_titles)
+
         if not self.stream_urls:
             return await interaction.response.send_message(
                 embed=discord.Embed(description='Couldnt find any MP4 snippets :(', color=colors.main),
-                ephemeral=True
-            )
+                ephemeral=True)
 
-        await interaction.response.send_message(embed=await loading('mp4'), ephemeral=True)
+        await interaction.response.send_message(embed=await loading(f'mp4', x=f'({len(self.stream_urls)} found). This may take a while'), ephemeral=True)
+
         async with aiohttp.ClientSession() as session:
             for i, url in enumerate(self.stream_urls, start=1):
-                await send_file(interaction, url, f'{self.title}_{i}.mp4', f'Snippet {i}')
-                await asyncio.sleep(0.3)
+                await send_file(interaction, url, f'{self.title}_{i}.mp4', f'Snippet {i}', session=session)
+                await asyncio.sleep(0.4)
 
 
 class MediaView(discord.ui.View):

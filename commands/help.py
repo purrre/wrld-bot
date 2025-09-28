@@ -126,10 +126,10 @@ class helpcog(commands.Cog):
         file = await httpcall('https://raw.githubusercontent.com/purrre/wrld-bot/refs/heads/main/CHANGES.md', json=False)
         lines = file.splitlines()
         
-        embed = discord.Embed(title=f'v{lines[2]} Changelog')
+        embed = discord.Embed(title=f'v{lines[2]} Changelog', color=colors.main)
         changes = [line for line in lines[3:] if line.strip()]
         embed.description = f"{lines[0]}\n\n" + "\n".join(changes)
-        embed.set_thumbnail(self.bot.user.avatar.url)
+        embed.set_thumbnail(url=self.bot.user.avatar.url)
         
         await msg.edit(embed=embed)
 

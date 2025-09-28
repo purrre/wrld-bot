@@ -9,7 +9,7 @@ class filescog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    async def _choose_song(self, msg, songs):
+    async def _choose_song(self, msg, songs, button_type='mp3'):
         opts = [
             discord.SelectOption(
                 label=s.get('name', 'Unknown')[:100],
@@ -21,14 +21,14 @@ class filescog(commands.Cog):
 
         class SongSelect(discord.ui.Select):
             def __init__(self, songs_list):
-                super().__init__(placeholder="pick a song...", options=opts, min_values=1, max_values=1)
+                super().__init__(placeholder="Pick a song...", options=opts, min_values=1, max_values=1)
                 self.songs = songs_list
 
             async def callback(self, interaction: discord.Interaction):
                 await interaction.response.defer()
                 chosen = next((s for s in self.songs if str(s['public_id']) == self.values[0]), None)
                 if chosen:
-                    await self.view.parent.send_embed(msg, interaction, chosen)
+                    await self.view.parent.send_embed(msg, interaction, chosen, button_type=button_type)
 
         view = discord.ui.View(timeout=None)
         view.parent = self
@@ -36,7 +36,7 @@ class filescog(commands.Cog):
 
         embed = discord.Embed(
             title="Multiple songs found",
-            description="Please choose a buy from the dropdown below.",
+            description="Please choose a song from the dropdown below.",
             color=colors.main
         )
         await msg.edit(embed=embed, view=view)
@@ -72,8 +72,8 @@ class filescog(commands.Cog):
         else:
             await msg.edit(embed=embed, view=view)
 
-    @bridge.bridge_command(aliases=['song'], usage='leak <song>', description='get the mp3 for a track')
-    @bridge.bridge_option(name='song', description='song name', required=True)
+    @bridge.bridge_command(aliases=['song'], usage='leak <song>', description='Get the MP3 for a track')
+    @bridge.bridge_option(name='song', description='Song name', required=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def leak(self, ctx, *, song: str):
         msg = await ctx.reply(embed=await loading('song'))
@@ -85,13 +85,13 @@ class filescog(commands.Cog):
         if len(results) == 1:
             return await self.send_embed(msg, ctx, results[0], button_type='mp3')
 
-        await self._choose_song(msg, results)
+        await self._choose_song(msg, results, button_type='mp3')
 
-    @bridge.bridge_command(aliases=['snippet', 'snip'], usage='snippets <song>', description='get snippet(s) for a track')
-    @bridge.bridge_option(name='song', description='song name', required=True)
+    @bridge.bridge_command(aliases=['snippet', 'snip'], usage='snippets <song>', description='Get snippet(s) for a track')
+    @bridge.bridge_option(name='song', description='Song name', required=True)
     @commands.cooldown(1, 6, commands.BucketType.user)
     async def snippets(self, ctx, *, song: str):
-        msg = await ctx.reply(embed=await loading('song'))
+        msg = await ctx.reply(embed=await loading('snippet'))
         songs = await httpcall('https://juicewrldapi.com/juicewrld/songs/', params={'search': song})
         results = [s for s in songs.get('results', []) if s.get('category') == 'unsurfaced']
 
@@ -100,7 +100,7 @@ class filescog(commands.Cog):
         if len(results) == 1:
             return await self.send_embed(msg, ctx, results[0], button_type='snip')
 
-        await self._choose_song(msg, results)
+        await self._choose_song(msg, results, button_type='snip')
 
 
 def setup(bot):
