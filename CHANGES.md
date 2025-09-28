@@ -1,13 +1,11 @@
-25 September, 2025
+27 September, 2025
 
-1.1
+1.3 - Bug Fixes
 
-[+] Enable, Disable, & Changelog commands
+[/] file_utils clean up and comments
 
-[+] Dev prefix
+[/!] Replaced Discord upload checks with chunked streaming and hard-coded boost-based size limits. wrld now uses half as much memory and uploads are 2x faster
 
-[/] Changes to loading and httpcall functions
+[!] Small fixes like missing colors
 
-[/] Function and Cog name changes
-
-[!] Fixed leak command
+[!] Fixed snippet button using mp3
