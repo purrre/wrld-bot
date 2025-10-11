@@ -1,7 +1,12 @@
 import discord
 
 from datetime import datetime
+import time
 import random, aiohttp, traceback
+
+start_time = None
+
+
 
 class colors:
     red = 0xe74c3c
@@ -82,3 +87,10 @@ def find_commands(bot, category):
             if cog_path.startswith(category):
                 commands_in_category.append(command)
     return commands_in_category
+
+def format_uptime():
+    uptime_seconds = int(time.time() - start_time)
+    days, remainder = divmod(uptime_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, _ = divmod(remainder, 60)
+    return days, hours, minutes

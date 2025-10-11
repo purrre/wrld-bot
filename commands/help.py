@@ -3,8 +3,8 @@ from discord.ext import bridge, commands
 
 import random
 
-import config
-from functions.functions import colors, loading, gifs, find_commands, emojis, httpcall
+import platform
+from functions.functions import colors, loading, gifs, find_commands, emojis, httpcall, format_uptime
 
 class Dropdown(discord.ui.Select):
     def __init__(self, bot, user_id, bot_avatar_url):
@@ -96,6 +96,7 @@ class helpcog(commands.Cog):
                 color=colors.main
             )
             embed.set_thumbnail(url=self.bot.user.avatar.url)
+            embed.set_footer(text=f'Running Python v{platform.python_version}')
             await msg.edit(embed=embed, view=view)
 
     @bridge.bridge_command(
@@ -105,14 +106,24 @@ class helpcog(commands.Cog):
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def about(self, ctx):
-        embed = discord.Embed(title='wrld', description='wrld is an open-source Discord bot that provides information about Juice WRLD. Created in Python and powered by juicewrldapi.com', color=colors.main)
-        embed.add_field(name='📊 Stats', value=f'`{len(self.bot.guilds)}` servers\n`{len(self.bot.users)}` users\n`{len(self.bot.commands)}` commands\n`{self.bot.shard_count}` shards')
+        days, hours, minutes = format_uptime()
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label='GitHub', url='https://github.com/purrre/wrld-bot'))
+        view.add_item(discord.ui.Button(label='Invite', url='https://discord.com/oauth2/authorize?client_id=806666114666725378&permissions=563364418145344&integration_type=0&scope=bot'))
+        embed = discord.Embed(title='wrld', description=f'wrld is an open-source Discord bot that provides information about Juice WRLD. Created in Python v{platform.python_version()} with Pycord v{discord.__version__} and powered by juicewrldapi.com', color=colors.main)
+        embed.add_field(name='📊 Stats', value=
+                        f'`{len(self.bot.guilds)}` servers\n'
+                        f'`{len(self.bot.users)}` users\n'
+                        f'`{len(self.bot.commands)}` commands\n'
+                        f'`{self.bot.shard_count}` shards\n'
+                        f'`{days}d {hours}h {minutes}m` uptime'
+                        )
         embed.add_field(name='<:github:1413031789961805875> GitHub', value='[Click Here](https://github.com/purrre/wrld-bot)')
         embed.add_field(name='<:love:1413032472731582505> Invite Bot', value='[Click Here](https://discord.com/oauth2/authorize?client_id=806666114666725378&permissions=563364418145344&integration_type=0&scope=bot)')
         embed.add_field(name='❤️ Sources', value='[juicewrldapi](https://juicewrldapi.com/)\n[gabedoesntgaf GB/PB Tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit)')
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.set_footer(text='Made with 💖 by @purree')
-        await ctx.reply(embed=embed)
+        await ctx.reply(embed=embed, view=view)
 
     @bridge.bridge_command(
         aliases=['cl', 'changelog'],

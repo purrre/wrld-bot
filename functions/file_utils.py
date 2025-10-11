@@ -45,13 +45,13 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
                     ephemeral=True
                 )
 
-            data = bytearray()
+            data = io.BytesIO()
             boost_level = interaction.guild.premium_tier if interaction.guild else 0
             max_size = config.upload_limits.get(boost_level, config.upload_limits[0])
 
-            async for chunk in resp.content.iter_chunked(1024*1024):
-                data.extend(chunk)
-                size = len(data) / 1024 / 1024
+            async for chunk in resp.content.iter_chunked(1024*256):
+                data.write(chunk)
+                size = data.tell() / 1024 / 1024
                 if size > max_size:
                     return await interaction.followup.send(
                         embed=discord.Embed(
@@ -63,10 +63,12 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
                     )
 
             try:
+                data.seek(0)
                 await interaction.followup.send(
-                    file=discord.File(io.BytesIO(data), filename=filename),
+                    file=discord.File(data, filename=filename),
                     ephemeral=True
                 )
+
             except Exception as e:
                 traceback.print_exc()
                 return await interaction.followup.send(
@@ -81,6 +83,7 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
             ephemeral=True
         )
     finally:
+        data.close()
         if not given_session:
             await session.close()
 

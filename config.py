@@ -1,3 +1,8 @@
+import os
+from dotenv import load_dotenv
+
+PREFIX = ','
+
 DEV = True
 DEV_PREFIX = ',,'
 

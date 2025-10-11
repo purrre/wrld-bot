@@ -2,12 +2,13 @@ import discord
 from discord.ext import commands, bridge
 from discord.gateway import DiscordWebSocket
 
-import os, traceback, asyncio
+import os, traceback, time
 from dotenv import load_dotenv
 
 import config
 from functions import mobile as setup
 from functions.file_utils import MediaView
+import functions.functions as func
 
 load_dotenv()
 token = os.environ.get('BOT_TOKEN')
@@ -21,7 +22,7 @@ bot = bridge.Bot(
     intents=discord.Intents.all(),
     help_command=None,
     case_insensitive=True,
-    heartbeat_timeout=40,
+    heartbeat_timeout=75,
     allowed_mentions=discord.AllowedMentions(
         everyone=False,
         users=True,
@@ -44,6 +45,7 @@ async def on_ready():
     print('Made with love by pure, powered by juicewrldapi.com')
     print(f'Registered {len(bot.commands)} commands')
     print(f'Logged in as {bot.user.id} ({bot.user.name}) in {len(bot.guilds)} guilds with {len(bot.users)} users\n------')
+    func.start_time = time.time()
 
 def load_cogs():
     for root, _, files in os.walk('commands'):
@@ -58,19 +60,18 @@ def load_cogs():
                         print(f'{fn} | ❌ ({e})')
                         traceback.print_exc()
 
-async def login():
+def token_check():
     creds = dev_token if config.DEV else token
     if not creds or not key:
-        raise SystemExit('Missing Creds. Check the README')
-
-    try:
-        bot.load_extension('functions.listeners')
-        load_cogs()
-        await bot.start(creds, reconnect=True)
-    except Exception as e:
-        print(f'Error during login: {e}')
-        traceback.print_exc()
-        raise SystemExit()
+        raise SystemExit('Missing Credidentials. Check the README')
+    return True, creds
 
 if __name__ == '__main__':
-    asyncio.run(login())
+    if token_check()[0]:
+        try:
+            bot.load_extension('functions.listeners')
+            load_cogs()
+            bot.run(token_check()[1], reconnect=True)
+        except Exception as e:
+            print(f'Error during startup: {e}')
+            traceback.print_exc()

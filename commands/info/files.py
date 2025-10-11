@@ -4,7 +4,6 @@ from discord.ext import commands, bridge
 from functions.functions import colors, loading, httpcall
 from functions.file_utils import SongButton, SnipButton
 
-
 class filescog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -41,22 +40,35 @@ class filescog(commands.Cog):
         )
         await msg.edit(embed=embed, view=view)
 
-    async def _build_embed(self, song):
+    async def _build_embed(self, song, snip=False):
+        description = f"-# {song.get('category', 'N/A').replace('_', ' ').title()}\n\n"
+
+        if not snip:
+            description += (
+                f"Length: {song.get('length', 'N/A')}\n"
+                f"{song.get('leak_type', 'N/A')}"
+            )
+        else:
+            preview = song.get('preview_date', 'N/A')
+            preview = preview.replace("First Previewed", "First Previewed:")
+
+            description += preview
+
         embed = discord.Embed(
-            title=song.get('name', 'Unknown'),
-            description=(
-                f"Category: {song.get('category', 'N/A').replace('_', ' ').title()}\n"
-                f"Length: {song.get('length', 'N/A')}"
-            ),
+            title = f"**{song.get('name', 'Unknown')} ({', '.join([s for s in song.get('track_titles', []) if s != song.get('name')][:2])})**",
+            description=description,
             color=colors.main
         )
+
         embed.set_footer(text=self.bot.user.name, icon_url=self.bot.user.display_avatar.url)
+
         if song.get('image_url'):
             embed.set_thumbnail(url=song['image_url'])
+
         return embed
 
     async def send_embed(self, msg, ctx_or_inter, song, button_type='mp3'):
-        embed = await self._build_embed(song)
+        embed = await self._build_embed(song, snip=(button_type == 'snip'))
         view = discord.ui.View(timeout=None)
 
         if button_type == 'mp3':
