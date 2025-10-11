@@ -1,11 +1,11 @@
-27 September, 2025
+10 October, 2025
 
-1.3 - Bug Fixes
+1.4 - Fixes, Small additions
 
-[/] file_utils clean up and comments
+[/] Changed look of snippet and leak embed
 
-[/!] Replaced Discord upload checks with chunked streaming and hard-coded boost-based size limits. wrld now uses half as much memory and uploads are 2x faster
+[/!] Yet again changed file uploading process. Less memory again
 
-[!] Small fixes like missing colors
+[+] Uptime tracker & version information
 
-[!] Fixed snippet button using mp3
+[!] Small fixes
