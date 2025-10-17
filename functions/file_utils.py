@@ -59,7 +59,8 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
                             description=f'{kind} is too large. Download or View it [here ↗]({url})',
                             color=colors.main
                         ),
-                        ephemeral=True
+                        ephemeral=True,
+                        view=(discord.ui.View().add_item(discord.ui.Button(label='​', url=url)) or discord.ui.View())
                     )
 
             try:
@@ -126,7 +127,7 @@ class SnipButton(discord.ui.Button):
 
         if not self.stream_urls:
             return await interaction.response.send_message(
-                embed=discord.Embed(description='Couldnt find any MP4 snippets :(', color=colors.main),
+                embed=discord.Embed(description='Couldnt find any snippets :(', color=colors.main),
                 ephemeral=True)
 
         await interaction.response.send_message(embed=await loading(f'mp4', x=f'({len(self.stream_urls)} found). This may take a while'), ephemeral=True)

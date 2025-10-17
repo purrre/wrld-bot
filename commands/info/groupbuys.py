@@ -90,10 +90,10 @@ class SongSelect(discord.ui.Select):
         self.entries, self.bot, self.msg, self.user = entries, bot, msg, user
 
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.defer()
         if interaction.user.id != self.user:
-            await interaction.response.send_message(f'This is not for you {random.choice(gifs)}', ephemeral=True)
-            return
+            return await interaction.response.send_message(f'This is not for you {random.choice(gifs)}', ephemeral=True)
+        
+        await interaction.response.defer()
 
         song = self.entries[int(self.values[0])]
         embed = build_song_embed(song, self.bot)

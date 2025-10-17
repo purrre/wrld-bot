@@ -1,7 +1,9 @@
 import discord
 from discord.ext import bridge, commands
 
-from functions.functions import colors, loading, cdict, httpcall
+import random
+
+from functions.functions import colors, loading, cdict, httpcall, gifs
 from functions.file_utils import SongButton, SnipButton, fetch_urls
 
 
@@ -64,7 +66,7 @@ class MediaView(discord.ui.View):
 
 
 class SongSelect(discord.ui.Select):
-    def __init__(self, songs: list[dict], bot):
+    def __init__(self, songs: list[dict], bot, user_id):
         self.bot = bot
         options = [
             discord.SelectOption(
@@ -75,9 +77,14 @@ class SongSelect(discord.ui.Select):
             for song in songs
         ]
         super().__init__(placeholder='Choose a song...', max_values=1, min_values=1, options=options)
+        self.user_id = int(user_id)
 
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.user_id:
+            return await interaction.response.send_message(f'This is not for you {random.choice(gifs)}', ephemeral=True)
+        
         await interaction.response.defer()
+
         song_id = self.values[0]
         song_data = await httpcall(f'https://juicewrldapi.com/juicewrld/songs/{song_id}/')
         song_dict = cdict(song_data)
@@ -90,9 +97,9 @@ class SongSelect(discord.ui.Select):
 
 
 class SongView(discord.ui.View):
-    def __init__(self, songs: list[dict], bot):
+    def __init__(self, songs: list[dict], bot, user_id):
         super().__init__(timeout=None)
-        self.add_item(SongSelect(songs, bot))
+        self.add_item(SongSelect(songs, bot, user_id))
 
 
 class searchcog(commands.Cog):
@@ -126,7 +133,7 @@ class searchcog(commands.Cog):
                 description='Please choose a song from the dropdown below.',
                 color=colors.main
             )
-            await msg.edit(embed=embed, view=SongView(songs['results'], self.bot.user))
+            await msg.edit(embed=embed, view=SongView(songs['results'], self.bot.user, ctx.author.id))
 
 
 def setup(bot):

@@ -54,8 +54,10 @@ class filescog(commands.Cog):
 
             description += preview
 
+        titles = [s for s in song.get('track_titles', []) if s != song.get('name')]
+
         embed = discord.Embed(
-            title = f"**{song.get('name', 'Unknown')} ({', '.join([s for s in song.get('track_titles', []) if s != song.get('name')][:2])})**",
+            title = f"**{song.get('name', 'Unknown')}{f' ({', '.join(titles[:2])})' if len(titles) > 1 else ''}**",
             description=description,
             color=colors.main
         )

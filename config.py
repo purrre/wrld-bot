@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 PREFIX = ','
 
-DEV = False
+DEV = True
 DEV_PREFIX = ',,'
 
 # boost level: upload size
@@ -12,5 +12,4 @@ upload_limits = {
     1: 25,
     2: 50,
     3: 100
-
 }
