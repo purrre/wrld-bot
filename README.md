@@ -73,11 +73,11 @@ If you would like to contribute; fork the repo, make your changes, and open a pu
 If you have a larger idea, either reach out on my socials or open an issue & we can discuss.
 
 ## Fair Use
-You are welcome to use this code to build your own bot, extend its functionality, or share it publicly. However, selling the code, claiming it as your own, or distributing it without proper credit is prohibited. Credit is defined as including my name (Pure) in any publicly accessible part of your project.
+You are welcome to use this code to build your own bot, extend its functionality, share it publicly, or create private service(s).
 
-All data accessed by this bot remains the property of its respective owners and should be used respectfully.
+All data accessed by this bot remains the property of its respective owners and should be used respectfully. All distributed items remain property of the original producers, artists, engineers and/or other contributors.
 
-Please contact me with any questions or negotiations at Twitter/X @purezeroh or Discord @purree.
+Please contact me with any questions or negotiations on Discord @purree.
 
 ## Site Access
 I couldn't remember the access code & didn't feel like searching or contacting the developer (even though i did anyways, shoutout to him hes cool asf) so I did the next best thing.. the simplest form of Reverse Engineering there is.
