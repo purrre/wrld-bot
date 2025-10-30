@@ -43,9 +43,9 @@ class handlerscog(commands.Cog):
             msg = await ctx.reply(f'{random.choice(gifs)} Too fast. Try again in {minutes}m {seconds}s')
             await msg.delete(delay=5)
         elif isinstance(error, commands.CommandInvokeError):
-            traceback.print_exc()
+            print_err(ctx, error, 'CommandInvokeError')
             embed = discord.Embed(
-                title=f'<:juiceL:1407602749851435059> wrld Collided',
+                title=f'<:juiceL:1407602749851435059> wrld collided',
                 description=
                 f'Please report this to `@purree`'
                 f'\n\n**Error:** ```{error.original}```',
@@ -54,14 +54,14 @@ class handlerscog(commands.Cog):
             embed.set_footer(text=f'{self.bot.user.name}', icon_url=f'{self.bot.user.avatar.url}')
             msg = await ctx.reply(embed=embed)
         else:
-            traceback.print_exc()
+            print_err(ctx, error, 'Unknown')
             embed = discord.Embed(title=f'Unexpected Error', description=f'wrld failed to handle this error.', color=colors.red)
             await ctx.reply(embed=embed)
 
     @commands.Cog.listener()
     async def on_error(self, event_method):
         print(f'Error in {event_method}')
-        traceback.print_exc()
+        print_err(None, None, event_method)
 
 def setup(bot):
     bot.add_cog(handlerscog(bot))

@@ -29,9 +29,11 @@ gifs = ['<a:gif1:1407139666511265984>',
         '<a:gif10:1411972696836804648>',
         '<a:gif11:1411972803154149457>']
 
+
+
 async def loading(method, x=None):
     """loading message, x = additional information"""
-    return discord.Embed(description=f'{random.choice(gifs)} Getting {method} information.. {x if x else ''}', color=colors.main)
+    return discord.Embed(description=f"{random.choice(gifs)} Getting {method} information.. {x or ''}", color=colors.main)
 
 def apierror(status, statustext):
     embed=discord.Embed(
@@ -79,14 +81,15 @@ def cdict(data: dict) -> dict | None:
             cleaned[key] = value
     return cleaned
 
+
 def find_commands(bot, category):
-    commands_in_category = []
-    for command in bot.walk_commands():
-        if command.cog:
-            cog_path = command.cog.__module__.replace('.', '/') + '.py'
-            if cog_path.startswith(category):
-                commands_in_category.append(command)
-    return commands_in_category
+    prefix = str(category or '').strip().replace('\\', '.').replace('/', '.').rstrip('.')
+    return [
+        cmd for cmd in bot.walk_commands()
+        if (cog := getattr(cmd, 'cog', None)) and isinstance(getattr(cog, '__module__', None), str)
+        and cog.__module__.startswith(prefix)
+    ]
+
 
 def format_uptime():
     uptime_seconds = int(time.time() - start_time)
@@ -94,3 +97,22 @@ def format_uptime():
     hours, remainder = divmod(remainder, 3600)
     minutes, _ = divmod(remainder, 60)
     return days, hours, minutes
+
+def print_err(ctx=None, error=None, invoke=None):
+    print("─" * 60)
+    print(f"[{invoke or type(error).__name__}]")
+
+    if ctx is not None:
+        try:
+            print(f"Command   : {getattr(ctx, 'command', None)}")
+            print(f"User      : {ctx.author} ({ctx.author.id})")
+            print(f"Message   : {ctx.message.content}")
+        except Exception:
+            print("(Context info unavailable)")
+
+    original = getattr(error, "original", error)
+    print(f"Error Type: {type(original).__name__}")
+    print(f"Error Msg : {original}")
+    print("─" * 60)
+    traceback.print_exception(type(original), original, original.__traceback__)
+    print("─" * 60)

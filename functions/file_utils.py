@@ -7,28 +7,35 @@ import config
 
 # fetch file urls
 async def fetch_urls(name, filename=None, ext=None, track_titles=None):
-    queries = [filename] if ext == '.mp3' and filename else []
+    exts = [ext] if ext else []
+    if ext == '.mp3':
+        exts.append('.wav')
+
+    # Build query list
+    queries = [filename] if filename else []
     if track_titles:
         queries.extend(track_titles)
     queries.append(name)
 
-    for query in queries:
-        if not query:
-            continue
+    for query in filter(None, queries):
+        for current_ext in exts:
+            data = await httpcall(
+                f'https://juicewrldapi.com/juicewrld/files/browse/?search={urllib.parse.quote(query)}'
+            )
+            if not data.get('items'):
+                continue
 
-        data = await httpcall(f'https://juicewrldapi.com/juicewrld/files/browse/?search={urllib.parse.quote(query)}')
-        if not data.get('items'):
-            continue
+            urls = [
+                f"https://juicewrldapi.com/juicewrld/files/download/?path={urllib.parse.quote(file['path'])}"
+                for file in data['items']
+                if file.get('extension') == current_ext
+                and query.lower() in file.get('name', '').lower()
+            ]
+            if urls:
+                return urls, current_ext
 
-        urls = [
-            f'https://juicewrldapi.com/juicewrld/files/download/?path={urllib.parse.quote(file.get('path'))}'
-            for file in data['items']
-            if file.get('extension') == ext and query.lower() in file.get('name', '').lower()
-        ]
-        if urls:
-            return urls
+    return [], None
 
-    return []
 
 
 # file sender
@@ -53,6 +60,8 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
                 data.write(chunk)
                 size = data.tell() / 1024 / 1024
                 if size > max_size:
+                    view = discord.ui.View()
+                    view.add_item(discord.ui.Button(label='Open', url=url))
                     return await interaction.followup.send(
                         embed=discord.Embed(
                             title='File Too Large',
@@ -60,7 +69,7 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
                             color=colors.main
                         ),
                         ephemeral=True,
-                        view=(discord.ui.View().add_item(discord.ui.Button(label='​', url=url)) or discord.ui.View())
+                        view=view
                     )
 
             try:
@@ -84,31 +93,57 @@ async def send_file(interaction: discord.Interaction, url, filename, kind, sessi
             ephemeral=True
         )
     finally:
-        data.close()
-        if not given_session:
-            await session.close()
+        try:
+            if 'data' in locals() and hasattr(data, 'close'):
+                data.close()
+        finally:
+            if not given_session and session:
+                await session.close()
 
-
-# mp3
+#mp3
 class SongButton(discord.ui.Button):
-    def __init__(self, name: str, filename: str | None = None, title: str | None = None):
+    def __init__(self, name: str, filename=None, title=None, era_name: str | None = None):
         super().__init__(emoji='💿', style=discord.ButtonStyle.gray)
         self.name = name
         self.filename = filename
         self.title = title or name
+        self.era_name = (era_name or "").lower()
         self.stream_urls: list[str] = []
+        self.found_ext: str | None = None
 
     async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True, invisible=False)
         if not self.stream_urls:
-            self.stream_urls = await fetch_urls(self.name, self.filename, '.mp3')
+            urls, found_ext = await fetch_urls(self.name, self.filename, '.mp3')
+
+            if self.era_name:
+                filtered = []
+                for url in urls:
+                    path = urllib.parse.unquote(url.split('=')[-1]).lower()
+                    if self.era_name in path:
+                        filtered.append(url)
+
+                if filtered:
+                    urls = filtered
+
+            self.stream_urls = urls
+            self.found_ext = found_ext
 
         if not self.stream_urls:
             return await interaction.response.send_message(
-                embed=discord.Embed(description='Couldnt find an MP3 :(', color=colors.main),
-                ephemeral=True)
+                embed=discord.Embed(
+                    description="Couldn't find an audio file :(",
+                    color=colors.main
+                ),
+                ephemeral=True
+            )
 
-        await interaction.response.send_message(embed=await loading('mp3'), ephemeral=True)
-        await send_file(interaction, self.stream_urls[0], f'{self.title}.mp3', 'MP3')
+        file_ext = self.found_ext or '.mp3'
+        file_kind = 'MP3' if file_ext == '.mp3' else 'WAV'
+
+        await interaction.followup.send(embed=await loading(file_kind), ephemeral=True)
+        await send_file(interaction, self.stream_urls[0], f"{self.title}{file_ext}", file_kind)
+
 
 
 # mp4
@@ -122,21 +157,52 @@ class SnipButton(discord.ui.Button):
         self.stream_urls: list[str] = []
 
     async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True, invisible=False)
         if not self.stream_urls:
-            self.stream_urls = await fetch_urls(self.name, self.filename, '.mp4', self.track_titles)
+            urls, _ = await fetch_urls(self.name, self.filename, '.mp4', self.track_titles)
+            self.stream_urls = urls
 
         if not self.stream_urls:
-            return await interaction.response.send_message(
-                embed=discord.Embed(description='Couldnt find any snippets :(', color=colors.main),
+            return await interaction.followup.send(
+                embed=discord.Embed(
+                    description="Couldn't find any snippets :(",
+                    color=colors.main),
                 ephemeral=True)
 
-        await interaction.response.send_message(embed=await loading(f'mp4', x=f'({len(self.stream_urls)} found). This may take a while'), ephemeral=True)
+        await interaction.followup.send(
+            embed=await loading(f'mp4', x=f'({len(self.stream_urls)} found). {"This may take a while" if len(self.stream_urls) > 5 else ""}'),
+            ephemeral=True
+        )
 
         async with aiohttp.ClientSession() as session:
             for i, url in enumerate(self.stream_urls, start=1):
                 await send_file(interaction, url, f'{self.title}_{i}.mp4', f'Snippet {i}', session=session)
                 await asyncio.sleep(0.4)
 
+
+# session / zip
+class SessionButton(discord.ui.Button):
+    def __init__(self, name: str, filename=None, title='Recording Session'):
+        super().__init__(emoji='🎙️', style=discord.ButtonStyle.gray)
+        self.name = name
+        self.filename = filename
+        self.title = title or 'Recording Session'
+        self.stream_urls: list[str] = []
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True, invisible=False)
+        if not self.stream_urls:
+            urls, _ = await fetch_urls(self.name, self.filename, '.zip')
+            self.stream_urls = urls
+
+        if not self.stream_urls:
+            return await interaction.followup.send(
+                embed=discord.Embed(
+                    description="Couldn't find a session :(",
+                    color=colors.main),
+                ephemeral=True)
+
+        await send_file(interaction, self.stream_urls[0], f'{self.title}.zip', 'Recording Session')
 
 class MediaView(discord.ui.View):
     def __init__(self, name, filename=None, track_titles=None, title='Media'):

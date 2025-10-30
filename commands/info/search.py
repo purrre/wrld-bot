@@ -4,7 +4,7 @@ from discord.ext import bridge, commands
 import random
 
 from functions.functions import colors, loading, cdict, httpcall, gifs
-from functions.file_utils import SongButton, SnipButton, fetch_urls
+from functions.file_utils import SongButton, SnipButton, SessionButton, fetch_urls
 
 
 def build_embed(data: dict, bot):
@@ -31,7 +31,7 @@ def build_embed(data: dict, bot):
         ('Dates', 'dates'),
         ('Length', 'length'),
         ('Leak', 'date_leaked'),
-        ('Category', 'leak_type'),
+        ('Category / Type', 'leak_type'),
     ]
 
     for name, key in fields:
@@ -42,40 +42,47 @@ def build_embed(data: dict, bot):
             embed.add_field(name=name, value=value, inline=False)
 
     if image_url := data.get('image_url'):
-        embed.set_thumbnail(url=image_url)
+        embed.set_thumbnail(url=f'https://juicewrldapi.com{image_url}')
         embed.set_author(
             name=' '.join(data.get('category', 'unknown').replace('_', ' ').title().split()),
-            icon_url=image_url
+            icon_url=f'https://juicewrldapi.com{image_url}'
         )
     embed.set_footer(text=bot.name, icon_url=bot.avatar.url)
     return embed
 
 
-class MediaView(discord.ui.View):
-    def __init__(self, song: dict):
-        super().__init__(timeout=None)
-        category = song.get('category', '').lower()
-        name = song.get('name', 'Unknown')
-        filename = song.get('file_names')
-        track_titles = song.get('track_titles', [])
+def _add_media_buttons(view: discord.ui.View, song: dict):
+    category = song.get('category', '').lower()
+    name = song.get('name', 'Unknown')
+    filename = song.get('file_names')
+    track_titles = song.get('track_titles', [])
 
-        if category == 'unsurfaced':
-            self.add_item(SnipButton(name, filename, title='Snippets', track_titles=track_titles))
-        elif category != 'recording_session':
-            self.add_item(SongButton(name, filename, title=name))
+    if category == 'unsurfaced':
+        view.add_item(SnipButton(name, filename, title='Snippets', track_titles=track_titles))
+    elif category == 'recording_session':
+        view.add_item(SessionButton(name, filename, title=name))
+    else:
+        view.add_item(SongButton(name, filename, title=name))
 
 
 class SongSelect(discord.ui.Select):
     def __init__(self, songs: list[dict], bot, user_id):
         self.bot = bot
+        self.songs = songs
         options = [
             discord.SelectOption(
                 label=song.get('name', 'Unknown'),
-                description=f"{song.get('original_key', 'N/A')} | {song.get('category', 'N/A').replace('_', ' ').title()}",
+                description=(
+                    (', '.join([t for t in (song.get('track_titles') or []) if t != song.get('name')][:2]) + ' | ' 
+                    if [t for t in (song.get('track_titles') or []) if t != song.get('name')][:2] 
+                    else '') +
+                    song.get('category', 'N/A').replace('_', ' ').title()
+                ),
                 value=str(song['public_id'])
             )
-            for song in songs
+            for song in songs[:25]
         ]
+
         super().__init__(placeholder='Choose a song...', max_values=1, min_values=1, options=options)
         self.user_id = int(user_id)
 
@@ -90,10 +97,10 @@ class SongSelect(discord.ui.Select):
         song_dict = cdict(song_data)
 
         embed = build_embed(song_dict, self.bot)
-        msg = await interaction.edit_original_response(embed=embed, view=discord.ui.View())
-
-        view = MediaView(song_dict)
-        await msg.edit(embed=embed, view=view)
+        view = discord.ui.View(timeout=None)
+        view.add_item(SongSelect(self.songs, self.bot, self.user_id))
+        _add_media_buttons(view, song_dict)
+        await interaction.edit_original_response(embed=embed, view=view)
 
 
 class SongView(discord.ui.View):
@@ -125,7 +132,9 @@ class searchcog(commands.Cog):
         elif songs['count'] == 1:
             song_dict = cdict(songs['results'][0])
             embed = build_embed(song_dict, self.bot.user)
-            view = MediaView(song_dict)
+            view = discord.ui.View(timeout=None)
+            view.add_item(SongSelect([song_dict], self.bot.user, ctx.author.id))
+            _add_media_buttons(view, song_dict)
             await msg.edit(embed=embed, view=view)
         else:
             embed = discord.Embed(
@@ -134,6 +143,42 @@ class searchcog(commands.Cog):
                 color=colors.main
             )
             await msg.edit(embed=embed, view=SongView(songs['results'], self.bot.user, ctx.author.id))
+
+    @bridge.bridge_command(
+        usage='random',
+        aliases=['r', 'randomsong'],
+        description='Fetch a random song'
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def random(self, ctx):
+        msg = await ctx.reply(embed=await loading('song'))
+        song = await httpcall('https://juicewrldapi.com/juicewrld/radio/random/')
+        if not song or not song.get('title'):
+            return await msg.edit(embed=discord.Embed(
+                description='Failed to fetch a random song :(',
+                color=colors.red))
+
+        title = song['title']
+        search = await httpcall(
+            'https://juicewrldapi.com/juicewrld/songs/',
+            params={'search': title}
+        )
+
+        if not search or search.get('count', 0) == 0:
+            return await msg.edit(embed=discord.Embed(
+                description=f'Failed :(',
+                color=colors.red))
+
+        if search.get('count', 0) > 1:
+            song_dict = cdict(random.choice(search['results']))
+        else:
+            song_dict = cdict(search['results'][0])
+
+        embed = build_embed(song_dict, self.bot.user)
+        view = discord.ui.View(timeout=None)
+        _add_media_buttons(view, song_dict)
+
+        await msg.edit(embed=embed, view=view)
 
 
 def setup(bot):

@@ -9,9 +9,9 @@ from functions.functions import colors, loading, gifs, find_commands, emojis, ht
 class Dropdown(discord.ui.Select):
     def __init__(self, bot, user_id, bot_avatar_url):
         options = [
-            discord.SelectOption(label='Info', emoji='ℹ️'),
-            discord.SelectOption(label='Stats', emoji='📊'),
-            discord.SelectOption(label='Owner', emoji='👑'),
+            discord.SelectOption(label='Info', description='Commands that provide things'),
+            discord.SelectOption(label='Stats', description='General statistics commands'),
+            discord.SelectOption(label='Owner', description='Commands for bot owner'),
         ]
 
         super().__init__(
@@ -96,7 +96,6 @@ class helpcog(commands.Cog):
                 color=colors.main
             )
             embed.set_thumbnail(url=self.bot.user.avatar.url)
-            embed.set_footer(text=f'Running Python v{platform.python_version}')
             await msg.edit(embed=embed, view=view)
 
     @bridge.bridge_command(

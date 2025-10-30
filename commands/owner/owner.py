@@ -59,11 +59,11 @@ class ownercog(commands.Cog):
             if typ.lower() == 'custom':
                 desc = ' '.join(desc)
                 await self.bot.change_presence(activity=discord.CustomActivity(name='Custom Status', state=f'{desc}'))
-                await ctx.reply(':thumbsup:')
             else:
                 desc = ' '.join(desc)
                 await self.bot.change_presence(activity=discord.Activity(type=getattr(discord.ActivityType, typ), name=desc))
-                await ctx.reply(':thumbsup:')
+
+            await ctx.reply(':thumbsup:')
 
 def setup(bot):
     bot.add_cog(ownercog(bot))

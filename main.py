@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, bridge
 from discord.gateway import DiscordWebSocket
 
-import os, traceback, time
+import os, traceback, time, logging
 from dotenv import load_dotenv
 
 import config
@@ -10,15 +10,16 @@ from functions import mobile as setup
 from functions.file_utils import MediaView
 import functions.functions as func
 
+if config.HEALTH:
+    from flask import Flask
+    import threading
+
 load_dotenv()
-token = os.environ.get('BOT_TOKEN')
-dev_token = os.environ.get('DEV_TOKEN')
 key = os.environ.get('G_API_KEY')
 
 DiscordWebSocket.identify = setup.WRLD
-
 bot = bridge.Bot(
-    command_prefix=commands.when_mentioned_or(config.DEV_PREFIX if config.DEV and config.DEV_PREFIX else ','),
+    command_prefix=commands.when_mentioned_or(config.PREFIX or ','),
     intents=discord.Intents.all(),
     help_command=None,
     case_insensitive=True,
@@ -61,16 +62,30 @@ def load_cogs():
                         traceback.print_exc()
 
 def token_check():
-    creds = dev_token if config.DEV else token
+    creds = config.TOKEN
     if not creds or not key:
         raise SystemExit('Missing Credidentials. Check the README')
     return True, creds
+
+def health_endpoint():
+    app = Flask(__name__)
+
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+
+    @app.route('/health')
+    def health():
+        return 'OK', 200
+
+    threading.Thread(target=lambda: app.run(host='0.0.0.0', port=config.PORT, use_reloader=False, debug=config.DEV), daemon=True).start()
 
 if __name__ == '__main__':
     if token_check()[0]:
         try:
             bot.load_extension('functions.listeners')
             load_cogs()
+            if config.HEALTH:
+                health_endpoint()
             bot.run(token_check()[1], reconnect=True)
         except Exception as e:
             print(f'Error during startup: {e}')

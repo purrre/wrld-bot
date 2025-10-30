@@ -15,7 +15,8 @@ class statscog(commands.Cog):
             stats = await httpcall('https://juicewrldapi.com/juicewrld/stats/')
 
             categories = '\n'.join(f'**{key.replace('_', ' ').title()}:** {value}' for key, value in stats['category_stats'].items())
-            eras = '\n'.join(f'**{k.replace('_', ' ')}:** {v}' for k, v in stats['era_stats'].items())
+            sorted_eras = sorted(stats['era_stats'].items(), key=lambda x: x[1], reverse=True)
+            eras = '\n'.join(f'**{k.replace("_", " ").title()}:** {v}' for k, v in sorted_eras)
 
             embed = discord.Embed(title=f'Total Songs: {stats['total_songs']}', 
                                   color=colors.main)
