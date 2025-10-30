@@ -1,11 +1,25 @@
-10 October, 2025
+29 October, 2025
 
-1.4 - Fixes, Small additions
+1.5
 
-[/] Changed look of snippet and leak embed
+[+] Session command + support
 
-[/!] Yet again changed file uploading process. Less memory again
+[+] Random command
 
-[+] Uptime tracker & version information
+[+] Pagination on eras & albums command
 
-[!] Small fixes
+[/] Notes on No item found embeds
+
+[/] Dropdowns stay on info embeds
+
+[/] Leak can send WAV's if no mp3 is found
+
+[/] Leak matches era in browse url for better results
+
+[/] Eras & albums command has better sorting
+
+[/!] Alt names not showing + alt names now show in dropdown desc's
+
+[!] Partial code refactor + cleanup
+
+[!] Too Large embed not having button
