@@ -1,25 +1,15 @@
-29 October, 2025
+26 November, 2025
 
-1.5
+1.6
 
-[+] Session command + support
+[+] Producer search command
 
-[+] Random command
+[+] Ping command (juicewrldapi status)
 
-[+] Pagination on eras & albums command
+[/] Pagination timeouts
 
-[/] Notes on No item found embeds
+[!] Dropdown showing when one result is found
 
-[/] Dropdowns stay on info embeds
+[!] Placeholder text on dropdowns match
 
-[/] Leak can send WAV's if no mp3 is found
-
-[/] Leak matches era in browse url for better results
-
-[/] Eras & albums command has better sorting
-
-[/!] Alt names not showing + alt names now show in dropdown desc's
-
-[!] Partial code refactor + cleanup
-
-[!] Too Large embed not having button
+[!] General Fixes
