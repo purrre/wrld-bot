@@ -1,13 +1,13 @@
 # wrld
 A fairly simple Python bot that pulls information using [juicewrldapi.com](https://juicewrldapi.com) and [gabedoesntgaf GB tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit). You can use it publicly, or self-host your own version. 
 
-This will mostly be maintained, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, and other Juice wrld bots. I wanted a bot that was solely for Juice, rather than being combined with server management. Hosting costs will be extremely low, so this bot is completely free to use. ✨🎉
+This will mostly be maintained, though I mainly made it for fun as an open-source alternative to [moonlight](https://discord.gg/YTWdnuNTbk) by yash, [hh wrld](https://discord.gg/P5nCDdMnBV) by hunter, [Archive Bot](https://discord.gg/juicearchive) by Juice Archive, [TPNE](https://discord.gg/tpne) by The Party Never Ends, and other Juice WRLD bots. I wanted a bot that was solely for Juice, rather than being combined with server management. Of course hosting costs will be very low, so wrld is completely free to use, forever. ✨🎉
 
 In addition, Ill try to keep adding features as they come available from juicewrldapi or any other helpful sources.
 
 You can view the to-do list [here](https://trello.com/b/kqv64MH9/wrld)
 
-Made in [Pycord](https://pycord.dev/)
+Made in [Pycord](https://pycord.dev/) with Python v3.12.12
 
 ## Invite
 If you just want to use the public bot, you can [invite it here](https://discord.com/oauth2/authorize?client_id=806666114666725378&permissions=563364418145344&integration_type=0&scope=bot). Otherwise, keep reading to learn how to build it yourself. **If you're not experienced in python, do not attempt to host your own instance. I will not provide support on self-hosting**
