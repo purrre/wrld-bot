@@ -5,7 +5,7 @@ import random
 
 from functions.functions import *
 
-class ownercog(commands.Cog):
+class OwnerCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -50,7 +50,8 @@ class ownercog(commands.Cog):
             await ctx.reply(f'failed. ```{e}```')
 
         
-    @commands.command(aliases=['ss', 'status'], usage='setstatus <type: listening/playing/watching/streaming/custom> <text>', description='Sets the bots custom status')
+    @commands.command(
+        aliases=['ss', 'status'], usage='setstatus <type: listening/playing/watching/streaming/custom> <text>', description='Sets the bots custom status')
     @commands.is_owner()
     async def setstatus(self, ctx, typ, *desc):
         if not typ or not desc:
@@ -66,4 +67,4 @@ class ownercog(commands.Cog):
             await ctx.reply(':thumbsup:')
 
 def setup(bot):
-    bot.add_cog(ownercog(bot))
+    bot.add_cog(OwnerCog(bot))

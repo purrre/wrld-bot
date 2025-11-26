@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 import config
 from functions import mobile as setup
-from functions.file_utils import MediaView
 import functions.functions as func
 
 if config.HEALTH:

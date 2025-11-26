@@ -9,8 +9,8 @@ from functions.functions import colors, loading, gifs, find_commands, emojis, ht
 class Dropdown(discord.ui.Select):
     def __init__(self, bot, user_id, bot_avatar_url):
         options = [
-            discord.SelectOption(label='Info', description='Commands that provide things'),
-            discord.SelectOption(label='Stats', description='General statistics commands'),
+            discord.SelectOption(label='Files', description='Commands that provide files'),
+            discord.SelectOption(label='Info', description='Commands that provide information/data'),
             discord.SelectOption(label='Owner', description='Commands for bot owner'),
         ]
 
@@ -50,7 +50,7 @@ class Dropdown(discord.ui.Select):
         else:
             await message.channel.send(f'No commands found in the {selection} category.')
 
-class helpcog(commands.Cog):
+class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -59,7 +59,7 @@ class helpcog(commands.Cog):
         aliases=['h'], 
         description='Displays a list of commands'
     )
-    @bridge.bridge_option('command', str, description='Command to get help for', required=False)
+    @bridge.bridge_option(name='command', description='Command to get help for', required=False)
     @commands.cooldown(1, 7, commands.BucketType.user)
     async def help(self, ctx, command=None):
         msg = await ctx.reply(embed=await loading('command'))
@@ -78,7 +78,7 @@ class helpcog(commands.Cog):
                     color=colors.main
                 )
                 embed.set_footer(text=f'help to view a list of all commands')
-                embed.add_field(name='Usage', value=f'{getattr(ctx, "clean_prefix", "/")}{cmd.usage}')
+                embed.add_field(name='Usage', value=f'{getattr(ctx, 'clean_prefix', '/')}{cmd.usage}')
                 embed.add_field(name='Cooldown', value=cd_text)
                 embed.add_field(name='Aliases', value=aliases)
                 
@@ -92,7 +92,7 @@ class helpcog(commands.Cog):
 
             embed = discord.Embed(
                 title='wrld', 
-                description=f'Welcome to the help menu. Here you can find a list of all commands and their descriptions. You can run `{getattr(ctx, "clean_prefix", "/")}help <command>` for more information on a specific command.\n\n> Select a category below to list the commands', 
+                description=f'Welcome to the help menu. Here you can find a list of all commands and their descriptions. You can run `{getattr(ctx, 'clean_prefix', '/')}help <command>` for more information on a specific command.\n\n> Select a category below to list the commands', 
                 color=colors.main
             )
             embed.set_thumbnail(url=self.bot.user.avatar.url)
@@ -109,7 +109,7 @@ class helpcog(commands.Cog):
         view = discord.ui.View()
         view.add_item(discord.ui.Button(label='GitHub', url='https://github.com/purrre/wrld-bot'))
         view.add_item(discord.ui.Button(label='Invite', url='https://discord.com/oauth2/authorize?client_id=806666114666725378&permissions=563364418145344&integration_type=0&scope=bot'))
-        embed = discord.Embed(title='wrld', description=f'wrld is an open-source Discord bot that provides information about Juice WRLD. Created in Python v{platform.python_version()} with Pycord v{discord.__version__} and powered by juicewrldapi.com', color=colors.main)
+        embed = discord.Embed(title='wrld', description=f'wrld is an open-source Discord bot that provides information about Juice WRLD. Created in Python v{platform.python_version()} with Pycord v{discord.__version__} and made possible by juicewrldapi.com', color=colors.main)
         embed.add_field(name='📊 Stats', value=
                         f'`{len(self.bot.guilds)}` servers\n'
                         f'`{len(self.bot.users)}` users\n'
@@ -132,17 +132,18 @@ class helpcog(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def changes(self, ctx):
         msg = await ctx.reply(embed=await loading('changelog'))
-        
-        file = await httpcall('https://raw.githubusercontent.com/purrre/wrld-bot/refs/heads/main/CHANGES.md', json=False)
+        success, file = await httpcall('https://raw.githubusercontent.com/purrre/wrld-bot/refs/heads/main/CHANGES.md', expect_json=False)
+        if not success:
+            return await msg.edit(embed=file)
         lines = file.splitlines()
         
         embed = discord.Embed(title=f'v{lines[2]} Changelog', color=colors.main)
         changes = [line for line in lines[3:] if line.strip()]
-        embed.description = f"{lines[0]}\n\n" + "\n".join(changes)
+        embed.description = f'{lines[0]}\n\n' + '\n'.join(changes)
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         
         await msg.edit(embed=embed)
 
 
 def setup(bot):
-    bot.add_cog(helpcog(bot))
+    bot.add_cog(HelpCog(bot))

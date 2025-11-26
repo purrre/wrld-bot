@@ -12,10 +12,12 @@ load_dotenv()
 
 async def fetch_buys():
     try:
-        resp = await httpcall(
+        success, resp = await httpcall(
             'https://sheets.googleapis.com/v4/spreadsheets/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/values/lOG/',
             params={'key': os.environ.get('G_API_KEY')}
         )
+        if not success:
+            return []
         rows = resp.get('values', [])
     except:
         return []
@@ -53,22 +55,21 @@ def build_song_embed(song, bot):
     finished = song['finished'].lower()
     ogfile = song.get('ogfile', '').lower()
 
-    finished_status = '✅' if finished == 'true' else '❌' if finished == 'false' else song['finished'] or 'N/A'
-    og_status = '✅' if ogfile == 'true' else '❌' if ogfile == 'false' else song.get('ogfile', '') or 'N/A'
+    finished_status = '✅' if finished == 'true' else '❌' if finished == 'false' else song.get('finished', 'N/A')
+    og_status = '✅' if ogfile == 'true' else '❌' if ogfile == 'false' else song.get('ogfile', 'N/A')
 
     embed = discord.Embed(
-        title=song['title'],
-        description=f"Price: {song['price'] or 'N/A'}",
+        title=song.get('title', 'N/A'),
+        description=f'Price: __{song.get('price', 'N/A')}__',
         color=colors.main
     )
-    embed.add_field(name='ERA', value=song['project'] or 'N/A', inline=False)
-    embed.add_field(name='Start Date', value=song['start_date'] or 'N/A', inline=True)
-    embed.add_field(name='End Date', value=song['end_date'] or 'N/A', inline=True)
-    embed.add_field(name='Status', value=f"Finished: {finished_status}\nOG File: {og_status}", inline=False)
-    embed.add_field(name='Notes', value=f"```{song['additional_info']}```", inline=False)
+    embed.add_field(name='Era', value=song.get('project', 'N/A'), inline=False)
+    embed.add_field(name='Start Date', value=song.get('start_date', 'N/A'), inline=True)
+    embed.add_field(name='End Date', value=song.get('end_date', 'N/A'), inline=True)
+    embed.add_field(name='Status', value=f'Finished: {finished_status}\nOG File: {og_status}', inline=False)
+    embed.add_field(name='Notes', value=f'```{song.get('additional_info', '')}```', inline=False)
 
     embed.set_footer(text=bot.user.name, icon_url=bot.user.avatar.url)
-    embed.set_thumbnail(url=bot.user.avatar.url)
     return embed
 
 
@@ -80,7 +81,7 @@ class SongSelect(discord.ui.Select):
             if not title:
                 continue
 
-            title = title.replace("\n", " | ")
+            title = title.replace('\n', ' | ')
 
             label = title[:97] + '...' if len(title) > 100 else title
             desc = e.get('additional_info', '')[:100]
@@ -107,12 +108,15 @@ class BuyInfo(discord.ui.View):
         self.add_item(SongSelect(entries, msg, bot, user))
 
 
-class groupbuyscog(commands.Cog):
+class GroupbuysCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.entries = []
 
-    @bridge.bridge_command(description='Search for a groupbuy/privatebuy', aliases=['gbs', 'groupbuy', 'groupbuys'], usage='gb <buy>')
+    @bridge.bridge_command(
+        description='Search for a groupbuy/privatebuy',
+        aliases=['gbs', 'groupbuy', 'groupbuys'],
+        usage='gb <buy>')
     @bridge.bridge_option(name='buy', description='Name of the buy', required=True)
     @commands.cooldown(1, 6, commands.BucketType.user)
     async def gb(self, ctx, *, buy: str):
@@ -140,4 +144,4 @@ class groupbuyscog(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(groupbuyscog(bot))
+    bot.add_cog(GroupbuysCog(bot))

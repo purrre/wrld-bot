@@ -2,7 +2,7 @@ import discord
 
 from datetime import datetime
 import time
-import random, aiohttp, traceback
+import random, aiohttp, traceback, json
 
 start_time = None
 
@@ -36,37 +36,68 @@ async def loading(method, x=None):
     return discord.Embed(description=f"{random.choice(gifs)} Getting {method} information.. {x or ''}", color=colors.main)
 
 def apierror(status, statustext):
-    embed=discord.Embed(
-        title=f'{random.choice(gifs)} HTTP Error', 
-        description=f'An error occured while querying.\n\nPlease try again later. If this persists, you can report it to `@purree`', 
-        color=colors.red, 
-        timestamp=datetime.now())
+    embed = discord.Embed(
+        title=f'{random.choice(gifs)} HTTP Error',
+        description='An error occured while querying.\n\nPlease try again later. '
+                    'If this persists, you can report it to [@purree](https://pure.is-a.dev/)',
+        color=colors.red,
+        timestamp=datetime.now()
+    )
     embed.set_footer(text=f'Error {status}: {statustext}')
     return embed
 
-async def httpcall(url, method='GET', headers=None, data=None, params=None, json=True):
+async def httpcall(url, method='GET', headers=None, data=None, params=None, expect_json=True, paginate=False, embed_resp=True):
+    """Makes an HTTP request via aiohttp with optional pagination"""
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.request(method, url, headers=headers, json=data, params=params) as resp:
-                status = resp.status
-                if not status == 200:
-                    apierror(status=status, statustext=resp.reason)
-                    print(f'Request failed with status {status}: {resp.reason}')
-                else:
-                    if json:
-                        return await resp.json()
+        all_results = [] if paginate else None
+        current_url = url
+        current_params = params or {}
+
+        while current_url:
+            async with aiohttp.ClientSession() as session:
+                async with session.request(method, current_url, headers=headers, json=data, params=current_params) as resp:
+                    if resp.status != 200:
+                        e_embed = apierror(status=resp.status, statustext=resp.reason)
+                        return False, e_embed if embed_resp else resp
+
+                    content = bytearray()
+                    async for chunk in resp.content.iter_chunked(64 * 1024):
+                        content.extend(chunk)
+
+                    if expect_json:
+                        json_data = json.loads(content.decode())
+                        if paginate:
+                            batch = json_data.get('results', [])
+                            all_results.extend(batch)
+                            next_url = json_data.get('next')
+                            if next_url:
+                                current_url = next_url
+                                current_params = None 
+                                continue
+                            else:
+                                return True, all_results
+                        else:
+                            return True, json_data
                     else:
-                        return await resp.text()
+                        return True, content.decode()
+
+            break
+
+        if paginate:
+            return True, all_results
+
     except aiohttp.ClientError as e:
-        print(f'HTTP request failed: {e}')
         traceback.print_exc()
-        return f'HTTP request failed: {e}'
+        e_embed = apierror(status="ClientError", statustext=str(e))
+        return False, e_embed
+
     except Exception as e:
-        print(f'An error occurred: {e}')
         traceback.print_exc()
-        return f'An error occurred: {e}'
+        e_embed = apierror(status="Exception", statustext=str(e))
+        return False, e_embed
     
 def cdict(data: dict) -> dict | None:
+    """Cleans a dict"""
     if not isinstance(data, dict):
         return None
     cleaned = {}
@@ -99,6 +130,7 @@ def format_uptime():
     return days, hours, minutes
 
 def print_err(ctx=None, error=None, invoke=None):
+    """Prints detailed error info"""
     print("─" * 60)
     print(f"[{invoke or type(error).__name__}]")
 
@@ -108,7 +140,7 @@ def print_err(ctx=None, error=None, invoke=None):
             print(f"User      : {ctx.author} ({ctx.author.id})")
             print(f"Message   : {ctx.message.content}")
         except Exception:
-            print("(Context info unavailable)")
+            print("(Context info N/A)")
 
     original = getattr(error, "original", error)
     print(f"Error Type: {type(original).__name__}")
@@ -116,3 +148,11 @@ def print_err(ctx=None, error=None, invoke=None):
     print("─" * 60)
     traceback.print_exception(type(original), original, original.__traceback__)
     print("─" * 60)
+
+def notfound_embed(query, ctx=None, type='track'):
+    if type == 'track':
+        return discord.Embed(
+            description=f'No tracks found for **{query}**',
+            footer=discord.EmbedFooter('TIP: Be less specific'),
+            color=colors.main
+        )
