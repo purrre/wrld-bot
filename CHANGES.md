@@ -1,15 +1,5 @@
-26 November, 2025
+27 November, 2025
 
-1.6
+1.6.1
 
-[+] Producer search command
-
-[+] Ping command (juicewrldapi status)
-
-[/] Pagination timeouts
-
-[!] Dropdown showing when one result is found
-
-[!] Placeholder text on dropdowns match
-
-[!] General Fixes
+[/!] Exactly match mp3 & wav results with API
