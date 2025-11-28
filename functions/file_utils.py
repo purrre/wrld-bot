@@ -1,5 +1,5 @@
 import discord
-import aiohttp, io, asyncio, traceback
+import aiohttp, io, asyncio, traceback, os
 import urllib.parse
 
 from functions.functions import httpcall, colors, loading
@@ -10,7 +10,6 @@ import config
 async def fetch_urls(song: dict, ext=None):
     name = song.get('name', '')
     track_titles = song.get('track_titles', []) or []
-
     queries = list(dict.fromkeys([name] + track_titles))
 
     exts = [ext] if ext else []
@@ -19,32 +18,53 @@ async def fetch_urls(song: dict, ext=None):
     elif ext == '.mp4':
         exts.append('.mov')
 
+    is_audio = ext in ('.mp3', '.wav')
+
     for query in queries:
         success, data = await httpcall(
             f'https://juicewrldapi.com/juicewrld/files/browse/?search={urllib.parse.quote(query)}'
         )
 
-        if not success or not isinstance(data, dict) or not data.get('items'):
+        if not success or not isinstance(data, dict):
+            continue
+
+        items = data.get("items")
+        if not items:
+            continue
+
+        if is_audio:
+            exact_items = [item for item in items if item.get('name', '').rsplit(".", 1)[0] == query.rsplit(".", 1)[0]]
+        else:
+            exact_items = items
+
+        if not exact_items:
             continue
 
         all_urls = []
         found_ext = None
-        
+
         for current_ext in exts:
-            urls = [
-                f'https://juicewrldapi.com/juicewrld/files/download/?path={urllib.parse.quote(file['path'])}'
-                for file in data['items']
-                if file.get('extension') == current_ext
-            ]
-            
+            urls = []
+            for file in exact_items:
+                file_ext = file.get("extension")
+                if file_ext is None and file.get("path"):
+                    basename = os.path.basename(file['path'])
+                    if "." in basename:
+                        file_ext = "." + basename.rsplit(".", 1)[1]
+
+                if file_ext == current_ext:
+                    urls.append(
+                        'https://juicewrldapi.com/juicewrld/files/download/?path=' +
+                        urllib.parse.quote(file['path'])
+                    )
+
             if urls:
                 all_urls.extend(urls)
                 if found_ext is None:
                     found_ext = current_ext
 
         if all_urls:
-            urls_deduped = list(dict.fromkeys(all_urls))
-            return urls_deduped, found_ext
+            return list(dict.fromkeys(all_urls)), found_ext
 
     return [], None
 
@@ -192,4 +212,5 @@ class MediaView(discord.ui.View):
         super().__init__(timeout=None)
         self.add_item(SongButton(song))
         self.add_item(SnipButton(song))
+
         self.add_item(SessionButton(song))
