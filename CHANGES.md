@@ -1,5 +1,11 @@
-27 November, 2025
+4 December, 2025
 
-1.6.1
+1.6.2
 
-[/!] Exactly match mp3 & wav results with API
+[+] Comp command
+
+[+] apistats command
+
+[+] eval command
+
+[/] Refactor ping command
