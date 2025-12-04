@@ -136,6 +136,17 @@ class FilesCog(commands.Cog):
 
         await self.multi_choice(msg, results, ctx, button_type='session')
 
+    @bridge.bridge_command(
+        usage='comp',
+        description='Get a link to the compilation files')
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def comp(self, ctx):
+        await ctx.reply(embed=discord.Embed(
+            title='Juice WRLD Comp',
+            description='[Click here to visit the comp](https://juicewrldapi.com/files/)',
+            color=colors.main
+        ), ephemeral=True)
+
 
 def setup(bot):
     bot.add_cog(FilesCog(bot))
