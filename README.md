@@ -1,3 +1,5 @@
+# a v2 rewrite is coming soon. no further updates will be pushed to this version. big things soon
+
 # wrld
 A fairly simple Python bot that pulls information using [juicewrldapi.com](https://juicewrldapi.com) and [gabedoesntgaf GB tracker](https://docs.google.com/spreadsheets/d/1qWCsoTTGMiXxymTui319zFwMtpZE7a5SYqmybz6mkBY/edit). You can use it publicly, or self-host your own version. 
 
